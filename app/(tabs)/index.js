@@ -1,85 +1,86 @@
 import React, { useState, useEffect } from 'react';
 import {
   StyleSheet, Text, TextInput, View,
-  FlatList, TouchableOpacity, Modal, Button
+  FlatList, TouchableOpacity, Modal, Button, Animated
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen() {
-  const [task, setTask] = useState(''); // State for the input field
-  const [tasks, setTasks] = useState([]); // State for the list of tasks
-  const [isModalVisible, setModalVisible] = useState(false); // Modal visibility state
-  const [currentTaskId, setCurrentTaskId] = useState(null); // ID of the task to edit
-  const [editedTask, setEditedTask] = useState(''); // Edited task text
+  const [task, setTask] = useState('');
+  const [tasks, setTasks] = useState([]);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [currentTaskId, setCurrentTaskId] = useState(null);
+  const [editedTask, setEditedTask] = useState('');
+  const [deleteAnim] = useState(new Animated.Value(1));
 
-  // Load tasks from AsyncStorage when the app starts
   useEffect(() => {
     const loadTasks = async () => {
       try {
         const storedTasks = await AsyncStorage.getItem('tasks');
         if (storedTasks) {
-          setTasks(JSON.parse(storedTasks)); // Parse and set the tasks if any exist
+          setTasks(JSON.parse(storedTasks));
         }
       } catch (error) {
         console.error('Error loading tasks:', error);
       }
     };
     loadTasks();
-  }, []); // Run once when the component mounts
+  }, []);
 
-  // Save tasks to AsyncStorage whenever tasks state changes
   useEffect(() => {
     const saveTasks = async () => {
       try {
-        await AsyncStorage.setItem('tasks', JSON.stringify(tasks)); // Store tasks as a JSON string
+        await AsyncStorage.setItem('tasks', JSON.stringify(tasks));
       } catch (error) {
         console.error('Error saving tasks:', error);
       }
     };
     saveTasks();
-  }, [tasks]); // Run whenever tasks state changes
+  }, [tasks]);
 
-  // Function to add a new task
   const addTask = () => {
     if (task.trim() && !tasks.some(t => t.text === task.trim())) {
       const newTask = { id: Date.now().toString(), text: task.trim(), completed: false };
-      setTasks([...tasks, newTask]); // Add task
-      setTask(''); // Clear input field after adding task
+      setTasks(prevTasks => [newTask, ...prevTasks]);
+      setTask('');
     } else {
       alert('Please enter a valid task and avoid duplicates.');
     }
   };
 
-  // Function to delete a task
   const deleteTask = (taskId) => {
-    const updatedTasks = tasks.filter((item) => item.id !== taskId);
-    setTasks(updatedTasks); // Remove the task by id
+    Animated.timing(deleteAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      const updatedTasks = tasks.filter((item) => item.id !== taskId);
+      setTasks(updatedTasks);
+      deleteAnim.setValue(1);
+    });
   };
 
-  // Function to toggle completion status of a task
   const toggleTaskCompletion = (taskId) => {
     const updatedTasks = tasks.map((item) =>
       item.id === taskId ? { ...item, completed: !item.completed } : item
     );
-    setTasks(updatedTasks); // Toggle the completed status
+    setTasks(updatedTasks);
   };
 
-  // Function to open the modal for editing a task
   const openEditModal = (taskId, taskText) => {
-    setCurrentTaskId(taskId); // Store the task ID for editing
-    setEditedTask(taskText); // Set the current task text in the modal
-    setModalVisible(true); // Open the modal
+    setCurrentTaskId(taskId);
+    setEditedTask(taskText);
+    setModalVisible(true);
   };
 
-  // Function to save the edited task
   const saveEditedTask = () => {
     if (editedTask.trim()) {
       const updatedTasks = tasks.map((item) =>
         item.id === currentTaskId ? { ...item, text: editedTask.trim() } : item
       );
-      setTasks(updatedTasks); // Update task text
-      setModalVisible(false); // Close the modal
-      setEditedTask(''); // Clear the edited task input
+      setTasks(updatedTasks);
+      setModalVisible(false);
+      setEditedTask('');
     } else {
       alert('Please enter a valid task.');
     }
@@ -89,54 +90,53 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Simple To-Do List</Text>
 
-      {/* Input section */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           placeholder="Add a new task"
           value={task}
-          onChangeText={(text) => setTask(text)} // Update input state
+          onChangeText={(text) => setTask(text)}
         />
         <TouchableOpacity style={styles.addButton} onPress={addTask}>
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Task list */}
       <FlatList
         data={tasks}
         renderItem={({ item }) => (
-          <View style={styles.taskContainer}>
-            <TouchableOpacity onPress={() => toggleTaskCompletion(item.id)} style={styles.taskTextContainer}>
+          <Animated.View style={[styles.taskContainer, { opacity: deleteAnim }]}>
+            {/* Edit Task on Text Press */}
+            <TouchableOpacity onPress={() => openEditModal(item.id, item.text)} style={styles.taskTextContainer}>
               <Text
                 style={[
                   styles.taskText,
-                  item.completed ? styles.completedTask : null
+                  item.completed ? styles.completedTask : null,
                 ]}
               >
                 {item.text}
               </Text>
             </TouchableOpacity>
 
-            {/* Edit and delete buttons */}
             <View style={styles.buttonContainer}>
-              <TouchableOpacity onPress={() => openEditModal(item.id, item.text)}>
-                <Text style={styles.editButton}>✏️</Text>
+              {/* Toggle Completion */}
+              <TouchableOpacity onPress={() => toggleTaskCompletion(item.id)}>
+                <Text style={styles.doneButton}>{item.completed ? '✅' : '✔️'}</Text>
               </TouchableOpacity>
 
+              {/* Delete Button */}
               <TouchableOpacity onPress={() => deleteTask(item.id)}>
                 <Text style={styles.deleteButton}>X</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
         )}
         keyExtractor={(item) => item.id}
       />
 
-      {/* Modal for editing task */}
       <Modal
         visible={isModalVisible}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={() => setModalVisible(false)}
       >
@@ -224,8 +224,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  editButton: {
-    color: '#FF8C00',
+  doneButton: {
+    color: '#28a745',
     fontSize: 20,
     marginRight: 10,
   },
@@ -248,8 +248,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
     marginBottom: 10,
   },
   modalInput: {
@@ -257,9 +256,9 @@ const styles = StyleSheet.create({
     height: 40,
     borderColor: '#ddd',
     borderWidth: 1,
+    marginBottom: 20,
     paddingHorizontal: 10,
     borderRadius: 5,
-    marginBottom: 20,
   },
   modalButtons: {
     flexDirection: 'row',
@@ -267,4 +266,3 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 });
-
