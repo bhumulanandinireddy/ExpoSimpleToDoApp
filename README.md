@@ -1,5 +1,3 @@
-Here's the full updated content for your `README.md` file:
-
 ```markdown
 # Expo Simple To-Do App
 
