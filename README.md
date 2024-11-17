@@ -53,4 +53,3 @@ npx expo start --ios
 - If you're using **Expo Go**, after scanning the QR code, the app will launch directly on your mobile device.
 - For **iOS**, ensure that **Xcode** is installed on your macOS machine to run the app on an iOS simulator.
 - For **Android**, make sure **Android Studio** and an emulator are set up for testing.
-```
