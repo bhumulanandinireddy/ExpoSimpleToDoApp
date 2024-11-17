@@ -1,4 +1,3 @@
-```markdown
 # Expo Simple To-Do App
 
 This is a simple to-do application built using React Native and Expo. Follow the steps below to run the app on your machine using either an emulator/simulator or the Expo Go app on your device.
@@ -14,6 +13,7 @@ Before running the app, make sure you have the following tools installed:
 - [Expo Go](https://expo.dev/client) (installed on your mobile device to run the app)
 
 ## Step 1: Clone the Repository
+
 
 First, clone the repository to your local machine using the following command:
 
