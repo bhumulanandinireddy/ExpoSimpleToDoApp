@@ -54,5 +54,3 @@ npx expo start --ios
 - For **iOS**, ensure that **Xcode** is installed on your macOS machine to run the app on an iOS simulator.
 - For **Android**, make sure **Android Studio** and an emulator are set up for testing.
 ```
-
-This content includes all the necessary steps and notes, properly formatted for your `README.md`.
