@@ -1,3 +1,6 @@
+Here's the full updated content for your `README.md` file:
+
+```markdown
 # Expo Simple To-Do App
 
 This is a simple to-do application built using React Native and Expo. Follow the steps below to run the app on your machine using either an emulator/simulator or the Expo Go app on your device.
@@ -19,7 +22,7 @@ First, clone the repository to your local machine using the following command:
 ```bash
 git clone https://github.com/bhumulanandinireddy/ExpoSimpleToDoApp.git
 cd ExpoSimpleToDoApp
-
+```
 
 ## Step 2: Install Dependencies
 
@@ -27,6 +30,7 @@ Run the following command in your terminal to install the necessary dependencies
 
 ```bash
 npm install
+```
 
 ## Step 3: Start the App
 
@@ -36,16 +40,21 @@ To start the app on an Android device or emulator, run:
 
 ```bash
 npx expo start --android
+```
 
-### For IOS Devices/Simulators
+### For iOS Devices/Simulators
 
-To start the app on an IOS device or simulators , run:
+To start the app on an iOS device or simulator, run:
 
 ```bash
 npx expo start --ios
+```
 
 ### Additional Notes
 
 - If you're using **Expo Go**, after scanning the QR code, the app will launch directly on your mobile device.
 - For **iOS**, ensure that **Xcode** is installed on your macOS machine to run the app on an iOS simulator.
 - For **Android**, make sure **Android Studio** and an emulator are set up for testing.
+```
+
+This content includes all the necessary steps and notes, properly formatted for your `README.md`.
